@@ -8,22 +8,17 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install Hugging Face CLI
+        run: pip install -U "huggingface_hub[cli]"
 
       - name: Deploy to Hugging Face
-        run: make deploy
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_USERNAME: ${{ secrets.HF_USERNAME }}
-          HF_SPACE_NAME: ${{ secrets.HF_SPACE_NAME }}
+        run: |
+          echo "Starting deployment..."
+          HF=${{ secrets.HF_TOKEN }} make deploy
+          echo "Deployment completed!"
