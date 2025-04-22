@@ -1,8 +1,8 @@
 ---
-title: "Enchanced OSCC"
-emoji: "😻"
-colorFrom: "blue"
-colorTo: "blue"
+title: "Enhanced OSCC"
+emoji: "📈"
+colorFrom: "green"
+colorTo: "green"
 sdk: gradio
 sdk_version: "5.25.2"
 app_file: "app.py"
