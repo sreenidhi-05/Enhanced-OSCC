@@ -54,7 +54,7 @@ with gr.Blocks() as demo:
             """Click on **Prediction** to upload an image and check for signs of Oral Squamous Cell Carcinoma, or **Model** to learn more about the underlying model.
             Let's explore the architecture here"""
         )
-        gr.Image(value=home_image_path, label="Model Architecture Diagram",shape=(500,500))
+        gr.Image(value=home_image_path, label="Model Architecture Diagram",width=500,height=500)
         gr.Markdown(
         """### Model Architecture Description
         The architecture diagram above illustrates the structure of the model used for OSCC detection. 
