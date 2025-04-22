@@ -4,20 +4,18 @@ import numpy as np
 from PIL import Image
 import os
 
-# Load model
 model_path = os.path.join(os.path.dirname(__file__), "model.keras")
 if not os.path.exists(model_path):
     raise RuntimeError(f"Model file not found at {model_path}")
 
+model = tf.keras.models.load_model(model_path)
 
-# Preprocessing function
 def preprocess_image(image):
     image_resized = image.resize((224, 224))
     image_array = np.array(image_resized) / 255.0
     image_input = np.expand_dims(image_array, axis=0)
     return image_input, image_array
 
-# Prediction function
 def predict_oscc(image):
     if image is None:
         return None, "Please upload an image."
@@ -29,11 +27,13 @@ def predict_oscc(image):
     display_preprocessed = Image.fromarray(display_preprocessed)
     return display_preprocessed, label
 
-# Image paths
+def predict_and_show(image):
+    preprocessed, result = predict_oscc(image)
+    return gr.update(value=preprocessed, visible=True), gr.update(value=result, visible=True)
+
 home_image_path = os.path.join(os.path.dirname(__file__), "architecture.png")
 model_image_path = os.path.join(os.path.dirname(__file__), "model_architecture.png")
 
-# Gradio Blocks UI
 with gr.Blocks() as demo:
     with gr.Row():
         gr.Markdown("## Oral Squamous Cell Carcinoma Detection (OSCC)")
@@ -47,29 +47,26 @@ with gr.Blocks() as demo:
     prediction_page = gr.Column(visible=False)
     model_page = gr.Column(visible=False)
 
-    # Home Page
     with home_page:
         gr.Markdown("### Welcome to the OSCC Detection")
         gr.Markdown(
             """Click on **Prediction** to upload an image and check for signs of Oral Squamous Cell Carcinoma, or **Model** to learn more about the underlying model.
             Let's explore the architecture here"""
         )
-        gr.Image(value=home_image_path, label="Model Architecture Diagram",width=500,height=500)
+        gr.Image(value=home_image_path, label="Model Architecture Diagram", width=500, height=500)
         gr.Markdown(
         """### Model Architecture Description
         The architecture diagram above illustrates the structure of the model used for OSCC detection. 
         It highlights the various layers, including convolutional and fully connected layers, that work together to classify images of oral lesions into 'Normal' and 'OSCC' categories.
         To know more about the Model visit *Model* tab"""
-    )
+        )
 
-    # Prediction Page
     with prediction_page:
         image_input = gr.Image(type="pil", label="", show_label=False)
         submit_btn = gr.Button("Submit")
-        preprocessed_output = gr.Image(label="Preprocessed Image (224x224)")
-        prediction_output = gr.Textbox(label="Prediction Result")
+        preprocessed_output = gr.Image(label="Preprocessed Image (224x224)", visible=False)
+        prediction_output = gr.Textbox(label="Prediction Result", visible=False)
 
-    # Model Page
     with model_page:
         with gr.Row():
             with gr.Column(scale=1):
@@ -103,7 +100,6 @@ with gr.Blocks() as demo:
 - **Recall**: 0.91  
 """)
 
-    # Navigation functions
     def show_home():
         return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)
 
@@ -113,18 +109,15 @@ with gr.Blocks() as demo:
     def show_model():
         return gr.update(visible=False), gr.update(visible=False), gr.update(visible=True)
 
-    # Button logic
     home_btn.click(fn=show_home, outputs=[home_page, prediction_page, model_page])
     prediction_btn.click(fn=show_prediction, outputs=[home_page, prediction_page, model_page])
     model_btn.click(fn=show_model, outputs=[home_page, prediction_page, model_page])
 
-    # Submit logic
     submit_btn.click(
-        fn=predict_oscc,
+        fn=predict_and_show,
         inputs=[image_input],
         outputs=[preprocessed_output, prediction_output]
     )
 
-# Launch app
 if __name__ == "__main__":
     demo.launch(pwa=True)
