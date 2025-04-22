@@ -140,3 +140,58 @@ val_acc_at_best = history.history["val_accuracy"][best_epoch]
 print(f"✅ Best Epoch: {best_epoch + 1}")
 print(f"📈 Training Accuracy at Best Epoch: {train_acc_at_best:.4f}")
 print(f"📈 Validation Accuracy at Best Epoch: {val_acc_at_best:.4f}")
+def evaluate_model(model, train_gen, val_gen, test_gen, history):
+    train_res = model.evaluate(train_gen)
+    train_accuracy = train_res[1]
+    print(f"Training Accuracy: {train_accuracy * 100:.2f}%")
+    
+    val_res = model.evaluate(val_gen)
+    val_accuracy = val_res[1]
+    print(f"Validation Accuracy: {val_accuracy * 100:.2f}%")
+    
+    test_res = model.evaluate(test_gen)
+    test_accuracy = test_res[1]
+    print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
+    
+    y_true = test_gen.classes
+    y_pred_prob = model.predict(test_gen)
+    
+    if y_pred_prob.shape[1] > 1:
+        y_pred = np.argmax(y_pred_prob, axis=1)
+    else:
+        y_pred = (y_pred_prob > 0.5).astype(int).flatten()
+    
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(6, 5))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", 
+                xticklabels=test_gen.class_indices.keys(), 
+                yticklabels=test_gen.class_indices.keys())
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.title("Confusion Matrix")
+    plt.show()
+    
+    print("Classification Report:\n", classification_report(y_true, y_pred, target_names=test_gen.class_indices.keys()))
+    
+    if history is not None:
+        plt.figure(figsize=(8, 6))
+        plt.plot(history.history.get('loss', []), label='Train Loss', marker='o')
+        plt.plot(history.history.get('val_loss', []), label='Validation Loss', marker='s')
+        plt.title('Model Loss')
+        plt.ylabel('Loss')
+        plt.xlabel('Epoch')
+        plt.legend()
+        plt.grid()
+        plt.show()
+    
+    if y_pred_prob.shape[1] == 1:
+        fpr, tpr, _ = roc_curve(y_true, y_pred_prob)
+        roc_auc = auc(fpr, tpr)
+        plt.figure(figsize=(8, 6))
+        plt.plot(fpr, tpr, color="blue", lw=2, label=f"ROC Curve (AUC = {roc_auc:.2f})")
+        plt.plot([0, 1], [0, 1], color="gray", linestyle="--")
+        plt.xlabel("False Positive Rate")
+        plt.ylabel("True Positive Rate")
+        plt.title("ROC Curve")
+        plt.legend(loc="lower right")
+        plt.show()
