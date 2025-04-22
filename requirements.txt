@@ -1,4 +1,5 @@
-gradio
+gradio==4.22.0
+Pillow
 tensorflow
 numpy
 pandas
