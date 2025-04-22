@@ -1,0 +1,18 @@
+install:
+	pip install -r requirements.txt
+
+format:
+	python -m black *.py
+
+train:
+	python train.py  # this should generate `results/`
+
+eval:
+	@echo "Evaluation done in train.py or optional step"
+
+update-branch:
+	git config --global user.name "$(USER_NAME)"
+	git config --global user.email "$(USER_EMAIL)"
+	git add .
+	git diff --cached --quiet || git commit -m "Auto-update: Results"
+	git push || echo "No changes to commit"
