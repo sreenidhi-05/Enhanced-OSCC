@@ -118,3 +118,4 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile(optimizer=Adam(learning_rate=0.0001),
               loss='binary_crossentropy',
               metrics=['accuracy'])
+model.summary()
