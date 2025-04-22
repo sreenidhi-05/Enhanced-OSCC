@@ -30,8 +30,9 @@ def predict_oscc(image):
     display_preprocessed = Image.fromarray(display_preprocessed)
     return display_preprocessed, label
 
-# Resolve full path of image
-image_path = os.path.join(os.path.dirname(__file__), "architecture.png")
+# Image paths
+home_image_path = os.path.join(os.path.dirname(__file__), "architecture.png")
+model_image_path = os.path.join(os.path.dirname(__file__), "model_architecture.png")
 
 # Gradio Blocks UI
 with gr.Blocks() as demo:
@@ -47,30 +48,56 @@ with gr.Blocks() as demo:
     prediction_page = gr.Column(visible=False)
     model_page = gr.Column(visible=False)
 
+    # Home Page
     with home_page:
         gr.Markdown("### Welcome to the OSCC Detection App")
         gr.Markdown(
             "Click on **Prediction** to upload an image and check for signs of Oral Squamous Cell Carcinoma, or **Model** to learn more about the underlying model."
         )
-        gr.Image(value=image_path, label="Model Architecture Diagram")
+        gr.Image(value=home_image_path, label="Model Architecture Diagram")
 
+    # Prediction Page
     with prediction_page:
         image_input = gr.Image(type="pil", label="", show_label=False)
         submit_btn = gr.Button("Submit")
         preprocessed_output = gr.Image(label="Preprocessed Image (224x224)")
         prediction_output = gr.Textbox(label="Prediction Result")
 
+    # Model Page
     with model_page:
-        gr.Markdown("### Model Details")
-        gr.Markdown("""
-- **Architecture**: Convolutional Neural Network with X convolutional layers and Y dense layers.
-- **Input Size**: 224×224 RGB images.
-- **Output**: Binary classification (OSCC detected vs. Healthy).
-- **Framework**: TensorFlow Keras.
-- **Training Data**: Description of dataset used.
-- **Performance**: Accuracy: 0.XX, Precision: 0.XX, Recall: 0.XX.
+        with gr.Row():
+            with gr.Column(scale=1):
+                gr.Markdown("### Model Architecture")
+                gr.Image(value=model_image_path, label="Architecture")
+
+            with gr.Column(scale=1):
+                gr.Markdown("### Model Description & Metrics")
+                gr.Markdown("""
+**Input Size**: 224×224×3 (RGB Images)  
+
+**Architecture**:
+- 6 convolutional blocks:
+  - Each with 2 Conv2D layers (last block has 1)
+  - BatchNormalization + ReLU after each layer
+  - MaxPooling2D after each block
+- Filters: **32 → 64 → 128 → 256 → 512 → 1024**
+- Total Conv2D layers: **11**
+- Final conv output: **7×7×1024**, flattened to **9216**
+
+**Fully Connected Layers**:
+- Dense: **512 → 256 → 128 → 1**
+- Dropout after first two dense layers
+
+**Output**: Binary classification — OSCC Detected / Healthy  
+**Trainable Parameters**: ~14 Million  
+
+**Performance**:
+- **Accuracy**: 0.89  
+- **Precision**: 0.91  
+- **Recall**: 0.91  
 """)
 
+    # Navigation functions
     def show_home():
         return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)
 
@@ -80,17 +107,18 @@ with gr.Blocks() as demo:
     def show_model():
         return gr.update(visible=False), gr.update(visible=False), gr.update(visible=True)
 
+    # Button logic
     home_btn.click(fn=show_home, outputs=[home_page, prediction_page, model_page])
     prediction_btn.click(fn=show_prediction, outputs=[home_page, prediction_page, model_page])
     model_btn.click(fn=show_model, outputs=[home_page, prediction_page, model_page])
 
+    # Submit logic
     submit_btn.click(
         fn=predict_oscc,
         inputs=[image_input],
         outputs=[preprocessed_output, prediction_output]
     )
 
+# Launch app
 if __name__ == "__main__":
     demo.launch(pwa=True)
-
-    
