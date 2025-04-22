@@ -12,3 +12,8 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
+dataset_path ="/kaggle/input/oral-cancer/dataset"
+batch_size = 32
+img_size = (224, 224)
+channels = 3
+input_shape = img_size + (channels,)
