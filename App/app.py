@@ -36,7 +36,7 @@ model_image_path = os.path.join(os.path.dirname(__file__), "model_architecture.p
 # Gradio Blocks UI
 with gr.Blocks() as demo:
     with gr.Row():
-        gr.Markdown("## Oral Cancer Detection (OSCC)")
+        gr.Markdown("## Oral Squamous Cell Carcinoma Detection (OSCC)")
 
     with gr.Row():
         home_btn = gr.Button("Home")
@@ -49,11 +49,18 @@ with gr.Blocks() as demo:
 
     # Home Page
     with home_page:
-        gr.Markdown("### Welcome to the OSCC Detection App")
+        gr.Markdown("### Welcome to the OSCC Detection")
         gr.Markdown(
-            "Click on **Prediction** to upload an image and check for signs of Oral Squamous Cell Carcinoma, or **Model** to learn more about the underlying model."
+            """Click on **Prediction** to upload an image and check for signs of Oral Squamous Cell Carcinoma, or **Model** to learn more about the underlying model.
+            Let's explore the architecture here"""
         )
-        gr.Image(value=home_image_path, label="Model Architecture Diagram")
+        gr.Image(value=home_image_path, label="Model Architecture Diagram",shape=(500,500))
+        gr.Markdown(
+        """### Model Architecture Description
+        The architecture diagram above illustrates the structure of the model used for OSCC detection. 
+        It highlights the various layers, including convolutional and fully connected layers, that work together to classify images of oral lesions into 'Normal' and 'OSCC' categories.
+        To know more about the Model visit *Model* tab"""
+    )
 
     # Prediction Page
     with prediction_page:
