@@ -24,60 +24,73 @@ def predict_oscc(image):
         return None, "Please upload an image."
 
     image_input, image_array = preprocess_image(image)
-
-    # Prediction
     prediction = model.predict(image_input)[0][0]
     label = "Effected (OSCC Detected)" if prediction > 0.5 else "Not Effected (Healthy)"
-
-    # Convert preprocessed image back to PIL for display
     display_preprocessed = (image_array * 255).astype(np.uint8)
     display_preprocessed = Image.fromarray(display_preprocessed)
-
     return display_preprocessed, label
+
+# Resolve full path of image
+image_path = os.path.join(os.path.dirname(__file__), "architecture.png")
 
 # Gradio Blocks UI
 with gr.Blocks() as demo:
     with gr.Row():
         gr.Markdown("## Oral Cancer Detection (OSCC)")
 
-    # Navigation Row
     with gr.Row():
         home_btn = gr.Button("Home")
         prediction_btn = gr.Button("Prediction")
+        model_btn = gr.Button("Model")
 
-    # Page containers
     home_page = gr.Column(visible=True)
     prediction_page = gr.Column(visible=False)
+    model_page = gr.Column(visible=False)
 
-    # Home Page Content
     with home_page:
         gr.Markdown("### Welcome to the OSCC Detection App")
-        gr.Markdown("Click on **Prediction** to upload an image and check for signs of Oral Squamous Cell Carcinoma.")
+        gr.Markdown(
+            "Click on **Prediction** to upload an image and check for signs of Oral Squamous Cell Carcinoma, or **Model** to learn more about the underlying model."
+        )
+        gr.Image(value=image_path, label="Model Architecture Diagram")
 
-    # Prediction Page Content
     with prediction_page:
         image_input = gr.Image(type="pil", label="", show_label=False)
         submit_btn = gr.Button("Submit")
         preprocessed_output = gr.Image(label="Preprocessed Image (224x224)")
         prediction_output = gr.Textbox(label="Prediction Result")
 
-    # Button logic
+    with model_page:
+        gr.Markdown("### Model Details")
+        gr.Markdown("""
+- **Architecture**: Convolutional Neural Network with X convolutional layers and Y dense layers.
+- **Input Size**: 224×224 RGB images.
+- **Output**: Binary classification (OSCC detected vs. Healthy).
+- **Framework**: TensorFlow Keras.
+- **Training Data**: Description of dataset used.
+- **Performance**: Accuracy: 0.XX, Precision: 0.XX, Recall: 0.XX.
+""")
+
     def show_home():
-        return gr.update(visible=True), gr.update(visible=False)
+        return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)
 
     def show_prediction():
-        return gr.update(visible=False), gr.update(visible=True)
+        return gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)
 
-    home_btn.click(fn=show_home, outputs=[home_page, prediction_page])
-    prediction_btn.click(fn=show_prediction, outputs=[home_page, prediction_page])
+    def show_model():
+        return gr.update(visible=False), gr.update(visible=False), gr.update(visible=True)
 
-    # Submit button logic
+    home_btn.click(fn=show_home, outputs=[home_page, prediction_page, model_page])
+    prediction_btn.click(fn=show_prediction, outputs=[home_page, prediction_page, model_page])
+    model_btn.click(fn=show_model, outputs=[home_page, prediction_page, model_page])
+
     submit_btn.click(
         fn=predict_oscc,
         inputs=[image_input],
         outputs=[preprocessed_output, prediction_output]
     )
 
-# Run the app
 if __name__ == "__main__":
     demo.launch(pwa=True)
+
+    
