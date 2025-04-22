@@ -8,17 +8,28 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repository (with LFS)
         uses: actions/checkout@v4
+        with:
+          lfs: true  # ✅ This ensures actual LFS files like model.keras are pulled
+
+      - name: Set Git Identity
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
 
       - name: Install Hugging Face CLI
         run: pip install -U "huggingface_hub[cli]"
+
+      - name: Authenticate with Hugging Face
+        run: huggingface-cli login --token ${{ secrets.HF_TOKEN }}
 
       - name: Deploy to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           echo "Starting deployment..."
-          HF=${{ secrets.HF_TOKEN }} make deploy
+          make deploy
           echo "Deployment complete !!!"
