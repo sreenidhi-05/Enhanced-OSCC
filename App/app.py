@@ -4,7 +4,8 @@ import numpy as np
 from PIL import Image
 import os
 
-model_path = os.path.join(os.path.dirname(__file__), "model.keras")
+model_path = "model.keras"
+
 if not os.path.exists(model_path):
     raise RuntimeError(f"Model file not found at {model_path}")
 
