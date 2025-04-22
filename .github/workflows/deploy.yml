@@ -21,4 +21,4 @@ jobs:
         run: |
           echo "Starting deployment..."
           HF=${{ secrets.HF_TOKEN }} make deploy
-          echo "Deployment completed!"
+          echo "Deployment complete !!!"
