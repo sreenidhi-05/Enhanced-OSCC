@@ -5,7 +5,7 @@ from PIL import Image
 import os
 
 # Load model
-model_path = os.path.join(os.path.dirname(__file__), "../Model/model.keras")
+model_path = os.path.join(os.path.dirname(__file__), "../App/model.keras")
 try:
     model = tf.keras.models.load_model(model_path)
 except Exception as e:
