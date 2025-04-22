@@ -133,3 +133,10 @@ history = model.fit(
     epochs=10,
     callbacks=[checkpoint]
 )
+best_epoch = np.argmax(history.history["val_accuracy"])
+train_acc_at_best = history.history["accuracy"][best_epoch]
+val_acc_at_best = history.history["val_accuracy"][best_epoch]
+
+print(f"✅ Best Epoch: {best_epoch + 1}")
+print(f"📈 Training Accuracy at Best Epoch: {train_acc_at_best:.4f}")
+print(f"📈 Validation Accuracy at Best Epoch: {val_acc_at_best:.4f}")
