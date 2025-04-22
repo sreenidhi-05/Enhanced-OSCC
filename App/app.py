@@ -6,10 +6,9 @@ import os
 
 # Load model
 model_path = os.path.join(os.path.dirname(__file__), "model.keras")
-try:
-    model = tf.keras.models.load_model(model_path)
-except Exception as e:
-    raise RuntimeError(f"Failed to load model: {e}")
+if not os.path.exists(model_path):
+    raise RuntimeError(f"Model file not found at {model_path}")
+
 
 # Preprocessing function
 def preprocess_image(image):
