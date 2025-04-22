@@ -119,3 +119,11 @@ model.compile(optimizer=Adam(learning_rate=0.0001),
               loss='binary_crossentropy',
               metrics=['accuracy'])
 model.summary()
+from tensorflow.keras.callbacks import ModelCheckpoint
+checkpoint = ModelCheckpoint(
+    filepath='best_model.keras',             
+    monitor='val_accuracy',                    
+    save_best_only=True,                  
+    save_weights_only=False,              
+    mode='max'                         
+)
