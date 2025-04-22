@@ -3,8 +3,10 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 import os
-
-model = tf.keras.models.load_model("model.keras")
+model_path = os.path.join(os.path.dirname(__file__), "model.keras")
+if not os.path.exists(model_path):
+    raise RuntimeError(f"Model file not found at {model_path}")
+model = tf.keras.models.load_model(model_path)
 
 def preprocess_image(image):
     image_resized = image.resize((224, 224))
