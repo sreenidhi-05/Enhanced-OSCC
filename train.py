@@ -127,3 +127,9 @@ checkpoint = ModelCheckpoint(
     save_weights_only=False,              
     mode='max'                         
 )
+history = model.fit(
+    train_gen,
+    validation_data=val_gen,
+    epochs=10,
+    callbacks=[checkpoint]
+)
