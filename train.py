@@ -195,3 +195,6 @@ def evaluate_model(model, train_gen, val_gen, test_gen, history):
         plt.title("ROC Curve")
         plt.legend(loc="lower right")
         plt.show()
+import tensorflow as tf
+best_model = tf.keras.models.load_model("best_model.keras")
+evaluate_model(best_model,train_gen, val_gen, test_gen, history)     
