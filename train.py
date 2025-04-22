@@ -198,3 +198,50 @@ def evaluate_model(model, train_gen, val_gen, test_gen, history):
 import tensorflow as tf
 best_model = tf.keras.models.load_model("best_model.keras")
 evaluate_model(best_model,train_gen, val_gen, test_gen, history)     
+import os
+from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Create results directory if it doesn't exist
+os.makedirs("Results", exist_ok=True)
+
+# Predict and compute metrics again for saving
+y_true = test_gen.classes
+y_pred_prob = best_model.predict(test_gen)
+y_pred = (y_pred_prob > 0.5).astype(int).flatten()
+
+# Save metrics to a text file
+with open("Results/metrics.txt", "w") as f:
+    test_loss, test_acc = best_model.evaluate(test_gen, verbose=0)
+    f.write(f"Test Accuracy: {test_acc * 100:.2f}%\n\n")
+    f.write("Classification Report:\n")
+    f.write(classification_report(y_true, y_pred, target_names=test_gen.class_indices.keys()))
+
+# Save confusion matrix as image
+cm = confusion_matrix(y_true, y_pred)
+plt.figure(figsize=(6, 5))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", 
+            xticklabels=test_gen.class_indices.keys(), 
+            yticklabels=test_gen.class_indices.keys())
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+plt.title("Confusion Matrix")
+plt.tight_layout()
+plt.savefig("Results/confusion_matrix.png")
+plt.close()
+
+# Save ROC Curve (only for binary classification)
+if y_pred_prob.shape[1] if len(y_pred_prob.shape) > 1 else 1 == 1:
+    fpr, tpr, _ = roc_curve(y_true, y_pred_prob)
+    roc_auc = auc(fpr, tpr)
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, color="blue", lw=2, label=f"ROC Curve (AUC = {roc_auc:.2f})")
+    plt.plot([0, 1], [0, 1], color="gray", linestyle="--")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC Curve")
+    plt.legend(loc="lower right")
+    plt.tight_layout()
+    plt.savefig("Results/roc_curve.png")
+    plt.close()
